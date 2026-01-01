@@ -1,7 +1,7 @@
-using GitAssistant.Application.Interface;
-using GitAssistant.Application.Models;
+using GitAssistant.Core.Interface;
+using GitAssistant.Core.Models;
 
-namespace GitAssistant.Application.Services;
+namespace GitAssistant.Core.Services;
 public sealed class GitEngine(IGitLogService logService) : IGitEngine
 {
     public async Task<IReadOnlyList<GitCommit>> GetCommitsAsync(GitLog options, CancellationToken cancellationToken)

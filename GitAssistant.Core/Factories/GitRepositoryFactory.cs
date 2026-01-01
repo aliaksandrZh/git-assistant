@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace GitAssistant.Application.Factories;
+namespace GitAssistant.Core.Factories;
 
 public static class GitRepositoryFactory
 {

@@ -1,6 +1,6 @@
-using GitAssistant.Application.Services;
-using GitAssistant.Application.Factories;
-using GitAssistant.Application.Models;
+using GitAssistant.Core.Services;
+using GitAssistant.Core.Factories;
+using GitAssistant.Core.Models;
 
 namespace GitAssistant.Tests.Application;
 

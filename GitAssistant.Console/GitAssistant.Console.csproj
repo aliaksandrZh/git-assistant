@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <ProjectReference Include="..\GitAssistant.Application\GitAssistant.Application.csproj" />
+    <ProjectReference Include="..\GitAssistant.Core\GitAssistant.Core.csproj" />
     <ProjectReference Include="..\GitAssistant.Settings\GitAssistant.Settings.csproj" />
   </ItemGroup>
   <ItemGroup>

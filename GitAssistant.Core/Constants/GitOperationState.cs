@@ -1,4 +1,4 @@
-namespace GitAssistant.Application.Constants;
+namespace GitAssistant.Core.Constants;
 
 public enum GitOperationState
 {

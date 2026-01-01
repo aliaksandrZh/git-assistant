@@ -1,8 +1,8 @@
 using System.Text.RegularExpressions;
-using GitAssistant.Application.Interface;
-using GitAssistant.Application.Models;
+using GitAssistant.Core.Interface;
+using GitAssistant.Core.Models;
 
-namespace GitAssistant.Application.Services;
+namespace GitAssistant.Core.Services;
 public class GitLogService(IGitCommandRunner runner) : IGitLogService
 {
     private const string GitHash = "%H";

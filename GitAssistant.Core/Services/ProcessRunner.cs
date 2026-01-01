@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using GitAssistant.Application.Interface;
-using GitAssistant.Application.Models;
+using GitAssistant.Core.Interface;
+using GitAssistant.Core.Models;
 
-namespace GitAssistant.Application.Services;
+namespace GitAssistant.Core.Services;
 
 public class ProcessRunner : IProcessRunner
 {

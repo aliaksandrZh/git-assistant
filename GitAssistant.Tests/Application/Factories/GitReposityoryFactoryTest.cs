@@ -1,4 +1,4 @@
-using GitAssistant.Application.Factories;
+using GitAssistant.Core.Factories;
 using System.Diagnostics;
 using Xunit;
 

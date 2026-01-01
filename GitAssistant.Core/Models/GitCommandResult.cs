@@ -1,4 +1,4 @@
-namespace GitAssistant.Application.Models;
+namespace GitAssistant.Core.Models;
 
 public record GitCommandResult(
     int ExitCode,

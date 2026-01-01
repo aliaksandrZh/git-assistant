@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\GitAssistant.Application\GitAssistant.Application.csproj" />
+    <ProjectReference Include="..\GitAssistant.Core\GitAssistant.Core.csproj" />
     <ProjectReference Include="..\GitAssistant.Settings\GitAssistant.Settings.csproj" />
 
     <None Update="appsettings.Test.json">

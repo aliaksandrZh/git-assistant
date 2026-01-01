@@ -1,6 +1,6 @@
-using GitAssistant.Application.Models;
+using GitAssistant.Core.Models;
 
-namespace GitAssistant.Application.Interface;
+namespace GitAssistant.Core.Interface;
 
 public interface IGitCommandRunner
 {

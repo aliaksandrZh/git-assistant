@@ -1,6 +1,6 @@
-using GitAssistant.Application.Constants;
+using GitAssistant.Core.Constants;
 
-namespace GitAssistant.Application.Models;
+namespace GitAssistant.Core.Models;
 
 public class GitOperation
 {

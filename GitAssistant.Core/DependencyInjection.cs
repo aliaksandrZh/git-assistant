@@ -1,8 +1,8 @@
-using GitAssistant.Application.Interface;
-using GitAssistant.Application.Services;
+using GitAssistant.Core.Interface;
+using GitAssistant.Core.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace GitAssistant.Application;
+namespace GitAssistant.Core;
 
 public static class ApplicationDI
 {

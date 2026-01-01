@@ -1,7 +1,7 @@
-﻿using GitAssistant.Application;
-using GitAssistant.Application.Interface;
-using GitAssistant.Application.Models;
-using GitAssistant.Application.Services;
+﻿using GitAssistant.Core;
+using GitAssistant.Core.Interface;
+using GitAssistant.Core.Models;
+using GitAssistant.Core.Services;
 using GitAssistant.Settings;
 using GitAssistant.Settings.Models;
 using Microsoft.Extensions.DependencyInjection;
