@@ -2,27 +2,28 @@ using GitAssistant.Application.Interface;
 using GitAssistant.Application.Models;
 
 namespace GitAssistant.Application.Services;
-public class GitLogService : IGitLogService
+public class GitLogService(IGitCommandRunner runner) : IGitLogService
 {
-    private readonly IGitCommandRunner _runner;
+    private const string GitHash = "%H";
+    private const string GitAuthor = "%an";
+    private const string GitDate = "%ad";
+    private const string GitSubject = "%s";
+    private static string LogFormat => $"{GitHash}|{GitAuthor}|{GitDate}|{GitSubject}";
 
-    public GitLogService(IGitCommandRunner runner)
-    {
-        _runner = runner;
-    }
-
-    public async Task<IReadOnlyList<GitCommit>> GetCommitsAsync(
-        string repoPath,
-        string? search,
+    public async Task<IReadOnlyList<GitCommit>> GetCommitsAsync(GitLog options,
         CancellationToken cancellationToken)
     {
-        var format = "%H|%an|%ad|%s";
-        var args = $"log --date=iso --pretty=format:\"{format}\"";
+        var args = $"log --date=iso --pretty=format:\"{LogFormat}\"";
 
-        if (!string.IsNullOrWhiteSpace(search))
-            args += $" --grep=\"{search}\"";
+        if (!string.IsNullOrWhiteSpace(options.Branch))
+        {
+            args += $" {options.Branch}";
+        }
 
-        var result = await _runner.RunAsync(args, repoPath, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(options.Query))
+            args += $" --grep=\"{options.Query}\"";
+
+        var result = await runner.RunAsync(args, options.Path, cancellationToken);
 
         if (result.ExitCode != 0)
             throw new InvalidOperationException(result.StdErr);

@@ -7,8 +7,6 @@ namespace GitAssistant.Tests.Settings;
 
 public class SettingsLoaderTests : IDisposable
 {
-    private static string TestGitRepositorySettingsKey = "TestGitRepositorySettingsKey";
-
     public void Dispose()
     {
         Environment.SetEnvironmentVariable("DOTNET_ENVIRONMENT", null);

@@ -1,8 +1,7 @@
 using GitAssistant.Application.Models;
 
 namespace GitAssistant.Application.Interface;
-
-public interface IGitLogService
+public interface IGitEngine
 {
     Task<IReadOnlyList<GitCommit>> GetCommitsAsync(GitLog options,
         CancellationToken cancellationToken);
