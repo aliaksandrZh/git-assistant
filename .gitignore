@@ -1,6 +1,8 @@
 # Visual Studio / Rider / VS Code
 .vs/
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 *.user
 *.suo
 *.userosscache
