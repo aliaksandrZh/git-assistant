@@ -8,4 +8,9 @@ public sealed class GitEngine(IGitLogService logService) : IGitEngine
     {
         return await logService.GetCommitsAsync(options, cancellationToken);
     }
+
+    public async Task<IReadOnlyList<GitCommit>> SearchCommitsAsync(GitLog options, CancellationToken cancellationToken)
+    {
+        return await logService.SearchAsync(options, cancellationToken);
+    }
 }

@@ -12,10 +12,21 @@ services.AddApplicationServices();
 
 var provider = services.BuildServiceProvider();
 var git = provider.GetRequiredService<IGitEngine>();
+var query = "31414|26871|30908|30903";
+// var commits = await git.GetCommitsAsync(new GitLog
+// {
+//     Path = settings.Path,
+//     Limit = 100
+// },
+// CancellationToken.None);
 
-var commits = await git.GetCommitsAsync(new GitLog
+
+
+var commits = await git.SearchCommitsAsync(new GitLog
 {
     Path = settings.Path,
+    Query = query,
+    Limit = 100
 },
 CancellationToken.None);
 

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using GitAssistant.Application.Interface;
 using GitAssistant.Application.Models;
 
@@ -10,6 +11,19 @@ public class GitLogService(IGitCommandRunner runner) : IGitLogService
     private const string GitSubject = "%s";
     private static string LogFormat => $"{GitHash}|{GitAuthor}|{GitDate}|{GitSubject}";
 
+    public async Task<IReadOnlyList<GitCommit>> SearchAsync(GitLog options, CancellationToken cancellationToken)
+    {
+        var commits = await GetCommitsAsync(options, cancellationToken);
+        if (string.IsNullOrEmpty(options.Query) || string.IsNullOrWhiteSpace(options.Query))
+            return commits;
+
+        var filteredCommits = new List<GitCommit>();
+        var regex = new Regex(options.Query, RegexOptions.IgnoreCase);
+        return commits
+            .Where(c => regex.IsMatch(c.Message))
+            .ToList();
+    }
+
     public async Task<IReadOnlyList<GitCommit>> GetCommitsAsync(GitLog options,
         CancellationToken cancellationToken)
     {
@@ -20,8 +34,8 @@ public class GitLogService(IGitCommandRunner runner) : IGitLogService
             args += $" {options.Branch}";
         }
 
-        if (!string.IsNullOrWhiteSpace(options.Query))
-            args += $" --grep=\"{options.Query}\"";
+        if (options.Limit.HasValue)
+            args += $" -n {options.Limit.Value}";
 
         var result = await runner.RunAsync(args, options.Path, cancellationToken);
 
