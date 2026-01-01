@@ -31,18 +31,18 @@ public static class GitRepositoryFactory
     public static string Create(out Action cleanup)
     {
         var path = Create();
-        Console.WriteLine($"Test repo created {path}");
+        LogShortStack($"Test repo created {path}");
         cleanup = () =>
         {
             Directory.Delete(path, true);
 
             if (Directory.Exists(path))
             {
-                Console.WriteLine($"Something went wrong! {path}");
+                LogShortStack($"Something went wrong! {path}");
             }
             else
             {
-                Console.WriteLine($"Test repo deleted {path}");
+                LogShortStack($"Test repo deleted {path}");
             }
         };
         return path;
@@ -67,5 +67,30 @@ public static class GitRepositoryFactory
         if (process.ExitCode != 0)
             throw new InvalidOperationException(
                 process.StandardError.ReadToEnd());
+    }
+
+    // TODO: Logger / Coomon
+    private static void LogShortStack(string message)
+    {
+        var st = new StackTrace(skipFrames: 1, fNeedFileInfo: false);
+        var frames = st.GetFrames();
+
+        if (frames == null)
+        {
+            Console.WriteLine(message);
+            return;
+        }
+
+        var myMethods = frames
+            .Select(f => f.GetMethod())
+            .Where(m => m != null)
+            .Where(m => m.DeclaringType != null &&
+                        m.DeclaringType.Namespace != null &&
+                        m.DeclaringType.Namespace.StartsWith("GitAssistant"))
+            .Select(m => m.Name)
+            .Distinct()
+            .ToArray();
+
+        Console.WriteLine($"{message} (called from: {string.Join(" -> ", myMethods)})");
     }
 }

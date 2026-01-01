@@ -89,6 +89,7 @@ public class GitRepositoryFactoryTests
         Assert.False(Directory.Exists(path));
     }
 
+    // TODO: Handle the case (delete the directory)
     [Fact]
     public void Create_ShouldThrowIfGitIsNotAvailable()
     {
