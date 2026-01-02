@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GitAssistant.Core\GitAssistant.Core.csproj" />
     <ProjectReference Include="..\GitAssistant.Settings\GitAssistant.Settings.csproj" />
+    <ProjectReference Include="..\GitAssistant.Console\GitAssistant.Console.csproj" />
 
     <None Update="appsettings.Test.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
