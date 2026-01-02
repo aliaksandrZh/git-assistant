@@ -19,7 +19,7 @@ public class Menu(IGitEngine git, StateMachine _stateMachine)
             switch (_stateMachine.CurrentState)
             {
                 case State.AwaitingRepoPath:
-                    trigger = OnAwaitingRepoPath();
+                    trigger = await OnAwaitingRepoPathAsync();
                     break;
 
                 case State.ShowingMenu:
@@ -61,11 +61,11 @@ public class Menu(IGitEngine git, StateMachine _stateMachine)
         return StateTrigger.Idle;
     }
 
-    private StateTrigger OnAwaitingRepoPath()
+    private async Task<StateTrigger> OnAwaitingRepoPathAsync()
     {
         System.Console.Write("Enter git repository path: ");
         _repoPath = System.Console.ReadLine() ?? "";
-        if (Directory.Exists(_repoPath) || true)
+        if (await git.ValidateAsync(_repoPath, default) == GitRepositoryStatus.Valid)
         {
             return StateTrigger.ProvideRepoPath;
         }

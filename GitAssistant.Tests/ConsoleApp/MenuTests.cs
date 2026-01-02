@@ -29,6 +29,10 @@ public class MenuTests
 
         gitMock.Setup(g => g.SearchCommitsAsync(It.IsAny<GitLog>(), It.IsAny<CancellationToken>()))
                .ReturnsAsync(commits);
+        gitMock.Setup(g => g.ValidateAsync(
+                It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+                .ReturnsAsync(GitRepositoryStatus.Valid);
 
         var input = new StringReader("test-repo\n1\ncommit\n10\n2\ny\n");
         Console.SetIn(input);
