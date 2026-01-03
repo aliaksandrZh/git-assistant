@@ -34,7 +34,7 @@ public class MenuTests
                 It.IsAny<CancellationToken>()))
                 .ReturnsAsync(GitRepositoryStatus.Valid);
 
-        var input = new StringReader("test-repo\n1\ncommit\n10\n2\ny\n");
+        var input = new StringReader("test-repo\n1\ncommit\n10\n3\ny\n");
         Console.SetIn(input);
         var output = new StringWriter();
         Console.SetOut(output);

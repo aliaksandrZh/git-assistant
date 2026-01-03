@@ -29,6 +29,7 @@ public class StateMachine
 
         _machine.Configure(State.ShowingMenu)
             .Permit(StateTrigger.ProvideSearchQuery, State.AwaitingSearchQuery)
+            .Permit(StateTrigger.CherryPick, State.CherryPicking)
             .Permit(StateTrigger.Exit, State.ConfirmExit);
 
         _machine.Configure(State.AwaitingSearchQuery)
@@ -48,9 +49,43 @@ public class StateMachine
         _machine.Configure(State.ConfirmExit)
             .Permit(StateTrigger.ExitCancelled, State.ShowingMenu)
             .Permit(StateTrigger.ExitConfirmed, State.ExitConfirmed);
+
+        // Cherry-pick
+
+        _machine.Configure(State.CherryPicking)
+            .InitialTransition(State.CherryPickStarting);
+
+        _machine.Configure(State.CherryPickStarting)
+            .SubstateOf(State.CherryPicking)
+            .Permit(StateTrigger.CherryPickError, State.CherryPickErrorHandling)
+            // .Permit(StateTrigger.CherryPickContinue, State.CherryPickContinuing)
+            .Permit(StateTrigger.CherryPickCompleted, State.CherryPickCompleted);
+
+        _machine.Configure(State.CherryPickContinuing)
+            .SubstateOf(State.CherryPicking)
+            .Permit(StateTrigger.CherryPickError, State.CherryPickErrorHandling)
+            // .Permit(StateTrigger.CherryPickContinue, State.CherryPickContinuing)
+            .Permit(StateTrigger.CherryPickCompleted, State.CherryPickCompleted);
+
+        _machine.Configure(State.CherryPickErrorHandling)
+            .SubstateOf(State.CherryPicking)
+            .Permit(StateTrigger.CherryPickContinue, State.CherryPickContinuing)
+            .Permit(StateTrigger.CherryPickAbort, State.CherryPickAborting);
+
+        _machine.Configure(State.CherryPickAborting)
+            .SubstateOf(State.CherryPicking)
+            .Permit(StateTrigger.CherryPickCompleted, State.CherryPickCompleted);
+
+        _machine.Configure(State.CherryPickCompleted)
+            .Permit(StateTrigger.ShowMenu, State.ShowingMenu);
+
+        // string graph = Stateless.Graph.UmlDotGraph.Format(_machine.GetInfo());
+        // System.Console.WriteLine(graph);
     }
 
     public State CurrentState => _machine.State;
+    // public Stateless.Reflection.StateMachineInfo GetInfo => _machine.GetInfo();
 
     public void Fire(StateTrigger trigger) => _machine.Fire(trigger);
+    public bool IsInState(State state) => _machine.IsInState(state);
 }

@@ -12,4 +12,10 @@ public enum State
     ConfirmExit,
     ExitConfirmed,
     None,
+    CherryPicking,
+    CherryPickCompleted,
+    CherryPickStarting,
+    CherryPickContinuing,
+    CherryPickErrorHandling,
+    CherryPickAborting
 }
