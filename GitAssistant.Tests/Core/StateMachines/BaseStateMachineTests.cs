@@ -33,18 +33,24 @@ public class StateMachineUnitTests
             Configure(PState.Idle).Permit(PTrigger.Start, PState.Running);
             Configure(PState.Running).Permit(PTrigger.SubDone, PState.Finished);
             ConfigureSubMachine(PState.Running, Child, () => FireInternal(PTrigger.SubDone));
-            Configure(PState.Finished).Ignore(PTrigger.SubDone);
+            Configure(PState.Finished).OnEntry(() => RiseCompleted()).Ignore(PTrigger.SubDone);
+
         }
     }
 
     public class ChildMachine : BaseStateMachine<CState, CTrigger>
     {
         public ChildMachine() : base(CState.Init) { }
+
         protected override void ConfigureMachine()
         {
             Configure(CState.Init).Permit(CTrigger.Go, CState.Working);
             Configure(CState.Working).Permit(CTrigger.Finish, CState.Done);
-            Configure(CState.Done).OnEntry(() => RiseCompleted());
+
+            // FIX: Allow the machine to "restart" if it receives 'Go' while in 'Done'
+            Configure(CState.Done)
+                .OnEntry(() => RiseCompleted())
+                .Permit(CTrigger.Go, CState.Working);
         }
     }
 
@@ -54,10 +60,13 @@ public class StateMachineUnitTests
         protected override void ConfigureMachine()
         {
             Configure(GCState.GStart).Permit(GCTrigger.GFinish, GCState.GDone);
-            Configure(GCState.GDone).OnEntry(() => RiseCompleted());
+
+            // FIX: Allow the machine to "restart" if it receives 'GFinish' while in 'GDone'
+            Configure(GCState.GDone)
+                .OnEntry(() => RiseCompleted())
+                .Permit(GCTrigger.GFinish, GCState.GDone); // Or PermitReentry
         }
     }
-
 
     [Fact]
     public void Parent_ShouldBlockInput_WhenSubMachineIsActive()
