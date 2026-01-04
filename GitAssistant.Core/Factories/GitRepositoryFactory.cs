@@ -84,10 +84,10 @@ public static class GitRepositoryFactory
         var myMethods = frames
             .Select(f => f.GetMethod())
             .Where(m => m != null)
-            .Where(m => m.DeclaringType != null &&
+            .Where(m => m?.DeclaringType != null &&
                         m.DeclaringType.Namespace != null &&
                         m.DeclaringType.Namespace.StartsWith("GitAssistant"))
-            .Select(m => m.Name)
+            .Select(m => m?.Name)
             .Distinct()
             .ToArray();
 

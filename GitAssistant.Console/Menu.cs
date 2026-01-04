@@ -137,7 +137,6 @@ public class Menu(IGitEngine git, StateMachine _stateMachine)
 
     private StateTrigger OnCherryPickStarted()
     {
-        var t = _stateMachine.GetInfo;
         return StateTrigger.CherryPickCompleted;
     }
 
