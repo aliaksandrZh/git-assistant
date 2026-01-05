@@ -14,9 +14,7 @@ public class Menu(IGitEngine git, StateMachine _stateMachine)
 
         object? trigger = StateTrigger.Idle;
 
-        var currentState = (State)_stateMachine.CurrentState;
-
-        while (currentState != State.ExitConfirmed)
+        while ((State)_stateMachine.CurrentState != State.ExitConfirmed)
         {
             switch (_stateMachine.CurrentState)
             {

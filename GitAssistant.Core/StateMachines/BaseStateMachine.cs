@@ -10,8 +10,6 @@ public interface ISubMachine
     void Fire(object trigger);
 
     public void RiseCompleted();
-    // void Activate();
-    // void Deactivate();
 
 }
 
@@ -27,29 +25,13 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
     public ISubMachine? CurrentSubMachine { get; set; }
     public object? CurrentStateSubState => CurrentSubMachine?.CurrentState;
 
-    // public void Activate() => _sm.Activate();
-
-    // public void Deactivate()
-    // {
-    //     if (CurrentSubMachine != null)
-    //     {
-    //         CurrentSubMachine.Deactivate();
-    //         // CurrentSubMachine = null;
-    //     }
-
-    //     _sm.Deactivate();
-    // }
-
     public void RiseCompleted()
     {
         if (CurrentSubMachine != null)
         {
             Console.WriteLine($"[{GetType().Name}] has an active sub machine");
-            // CurrentSubMachine.RiseCompleted();
-            // CurrentSubMachine = null;
         }
 
-        // _sm.Deactivate();
         OnCompleted?.Invoke();
         Console.WriteLine($"[{GetType().Name}] Stopped at state: {CurrentState}");
     }
@@ -67,10 +49,9 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
         if (CurrentSubMachine != null)
         {
             Console.WriteLine($"[{GetType().Name}] Busy: Ignoring trigger {trigger}");
-            // throw new InvalidOperationException();
             return;
         }
-        Console.WriteLine(Environment.StackTrace);
+
         _sm.Fire(trigger);
     }
     public void Fire(object dynamicTrigger)
@@ -143,7 +124,6 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
                 }
 
                 CurrentSubMachine.OnCompleted -= onSubMachineCompleted;
-                // subStateMachine.Deactivate();
                 CurrentSubMachine = null;
             });
     }
