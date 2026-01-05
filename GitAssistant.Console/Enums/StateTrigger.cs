@@ -12,11 +12,6 @@ public enum StateTrigger
     ExitConfirmed,
     ExitCancelled,
 
-    // Cherry pick
-    CherryPick,            // -> CherryPicking (войдет в Starting)
-    CherryPickError,       // -> ErrorHandling substate
-    CherryPickContinue,    // -> Continuing substate
-    ContinueCherryPick,    // Внешний триггер для продолжения
-    CherryPickAbort,
+    CherryPick,
     CherryPickCompleted
 }

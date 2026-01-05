@@ -2,6 +2,7 @@ using System;
 using GitAssistant.Console.Context;
 using GitAssistant.Console.Enums;
 using GitAssistant.Console.StateMachines;
+using GitAssistant.Core.Enums;
 using Xunit;
 
 namespace GitAssistant.Tests.Console;
@@ -109,7 +110,8 @@ public class StateMachineTests
         sm.Fire(StateTrigger.CherryPick);
 
         // Assert
-        Assert.Equal(State.CherryPickStarting, sm.CurrentState);
+        Assert.Equal(State.CherryPicking, sm.CurrentState);
+        Assert.Equal(CherryPickState.Starting, sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -122,10 +124,11 @@ public class StateMachineTests
         sm.Fire(StateTrigger.CherryPick);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickError);
+        sm.Fire(CherryPickTrigger.Error);
 
         // Assert
-        Assert.Equal(State.CherryPickErrorHandling, sm.CurrentState);
+        Assert.Equal(CherryPickState.ErrorHandling, sm.CurrentStateSubState);
+        Assert.Equal(State.CherryPicking, sm.CurrentState);
     }
 
     [Fact]
@@ -136,13 +139,14 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickError);
+        sm.Fire(CherryPickTrigger.Error);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickContinue);
+        sm.Fire(CherryPickTrigger.Continue);
 
         // Assert
-        Assert.Equal(State.CherryPickContinuing, sm.CurrentState);
+        Assert.Equal(CherryPickState.Continuing, sm.CurrentStateSubState);
+        Assert.Equal(State.CherryPicking, sm.CurrentState);
     }
 
     [Fact]
@@ -153,14 +157,15 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickError);
-        sm.Fire(StateTrigger.CherryPickContinue);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Continue);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickError);
+        sm.Fire(CherryPickTrigger.Error);
 
         // Assert
-        Assert.Equal(State.CherryPickErrorHandling, sm.CurrentState);
+        Assert.Equal(CherryPickState.ErrorHandling, sm.CurrentStateSubState);
+        Assert.Equal(State.CherryPicking, sm.CurrentState);
     }
 
     [Fact]
@@ -171,13 +176,13 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickError);
+        sm.Fire(CherryPickTrigger.Error);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickAbort);
+        sm.Fire(CherryPickTrigger.Abort);
 
         // Assert
-        Assert.Equal(State.CherryPickAborting, sm.CurrentState);
+        Assert.Equal(CherryPickState.Aborting, sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -188,14 +193,15 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickError);
-        sm.Fire(StateTrigger.CherryPickAbort);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Abort);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickCompleted);
+        sm.Fire(CherryPickTrigger.Complete);
 
         // Assert
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
+        Assert.Null(sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -206,12 +212,15 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Abort);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickCompleted);
+        sm.Fire(CherryPickTrigger.Complete);
 
         // Assert
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
+        Assert.Null(sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -222,14 +231,15 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickError);
-        sm.Fire(StateTrigger.CherryPickContinue);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Continue);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickCompleted);
+        sm.Fire(CherryPickTrigger.Complete);
 
         // Assert
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
+        Assert.Null(sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -240,10 +250,11 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickCompleted);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Abort);
+        sm.Fire(CherryPickTrigger.Complete);
 
         // Act
-        sm.Fire(StateTrigger.ShowMenu);
 
         // Assert
         Assert.Equal(State.ShowingMenu, sm.CurrentState);
@@ -258,27 +269,20 @@ public class StateMachineTests
         sm.Fire(StateTrigger.ProvideRepoPath);
 
         // Act & Assert
+        var exception = Record.Exception(() =>
+        {
+            sm.Fire(StateTrigger.ProvideSearchQuery);
+        });
+
+        // Assert
+        Assert.Null(exception);
+
         Assert.Throws<InvalidOperationException>(() =>
         {
-            sm.Fire(StateTrigger.CherryPickError);
+            sm.Fire(StateTrigger.ShowMenu);
         });
     }
 
-    [Fact]
-    public void CherryPickStarting_InvalidAbort_ShouldThrow()
-    {
-        // Arrange
-        var sm = new StateMachine();
-        sm.Fire(StateTrigger.Start);
-        sm.Fire(StateTrigger.ProvideRepoPath);
-        sm.Fire(StateTrigger.CherryPick);
-
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            sm.Fire(StateTrigger.CherryPickAbort);
-        });
-    }
 
     [Fact]
     public void FullCherryPickFlow_WithErrorAndContinue_ShouldWork()
@@ -294,18 +298,16 @@ public class StateMachineTests
         Assert.Equal(State.ShowingMenu, sm.CurrentState);
 
         sm.Fire(StateTrigger.CherryPick);
-        Assert.Equal(State.CherryPickStarting, sm.CurrentState);
+        Assert.Equal(CherryPickState.Starting, sm.CurrentStateSubState);
 
-        sm.Fire(StateTrigger.CherryPickError);
-        Assert.Equal(State.CherryPickErrorHandling, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Error);
+        Assert.Equal(CherryPickState.ErrorHandling, sm.CurrentStateSubState);
 
-        sm.Fire(StateTrigger.CherryPickContinue);
-        Assert.Equal(State.CherryPickContinuing, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Continue);
+        Assert.Equal(CherryPickState.Continuing, sm.CurrentStateSubState);
 
-        sm.Fire(StateTrigger.CherryPickCompleted);
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
-
-        sm.Fire(StateTrigger.ShowMenu);
+        sm.Fire(CherryPickTrigger.Complete);
+        Assert.Null(sm.CurrentStateSubState);
         Assert.Equal(State.ShowingMenu, sm.CurrentState);
     }
 
@@ -319,12 +321,13 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickError);
-        sm.Fire(StateTrigger.CherryPickAbort);
-        sm.Fire(StateTrigger.CherryPickCompleted);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Abort);
+        sm.Fire(CherryPickTrigger.Complete);
 
         // Assert
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
+        Assert.Null(sm.CurrentStateSubState);
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
     }
 
     [Fact]
@@ -343,7 +346,7 @@ public class StateMachineTests
         sm.Fire(StateTrigger.CherryPick);
 
         // Assert
-        Assert.Equal(State.CherryPickStarting, sm.CurrentState);
+        Assert.Equal(CherryPickState.Starting, sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -356,21 +359,21 @@ public class StateMachineTests
         sm.Fire(StateTrigger.CherryPick);
 
         // Act
-        sm.Fire(StateTrigger.CherryPickError);
-        Assert.Equal(State.CherryPickErrorHandling, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Error);
+        Assert.Equal(CherryPickState.ErrorHandling, sm.CurrentStateSubState);
 
-        sm.Fire(StateTrigger.CherryPickContinue);
-        Assert.Equal(State.CherryPickContinuing, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Continue);
+        Assert.Equal(CherryPickState.Continuing, sm.CurrentStateSubState);
 
-        sm.Fire(StateTrigger.CherryPickError);
-        Assert.Equal(State.CherryPickErrorHandling, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Error);
+        Assert.Equal(CherryPickState.ErrorHandling, sm.CurrentStateSubState);
 
-        sm.Fire(StateTrigger.CherryPickAbort);
-        Assert.Equal(State.CherryPickAborting, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Abort);
+        Assert.Equal(CherryPickState.Aborting, sm.CurrentStateSubState);
 
         // Assert
-        sm.Fire(StateTrigger.CherryPickCompleted);
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Complete);
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
     }
 
     [Fact]
@@ -383,14 +386,15 @@ public class StateMachineTests
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
         sm.Fire(StateTrigger.CherryPick);
-        sm.Fire(StateTrigger.CherryPickCompleted);
-        sm.Fire(StateTrigger.ShowMenu);
+        sm.Fire(CherryPickTrigger.Complete);
 
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
 
         sm.Fire(StateTrigger.CherryPick);
 
         // Assert
-        Assert.Equal(State.CherryPickStarting, sm.CurrentState);
+        Assert.Equal(State.CherryPicking, sm.CurrentState);
+        Assert.Equal(CherryPickState.Starting, sm.CurrentStateSubState);
     }
 
     [Fact]
@@ -412,27 +416,26 @@ public class StateMachineTests
         // Assert
         Assert.NotNull(sm.Context);
 
-        sm.Fire(StateTrigger.CherryPickError);
-        sm.Fire(StateTrigger.CherryPickContinue);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Continue);
 
         Assert.Equal(testQuery, sm.Context.Query);
         Assert.Equal(testLimit, sm.Context.Limit);
     }
 
     [Theory]
-    [InlineData(StateTrigger.CherryPickContinue)]
-    [InlineData(StateTrigger.CherryPickAbort)]
-    public void CherryPickErrorHandling_InvalidTriggers_FromStarting_ShouldThrow(StateTrigger trigger)
+    [InlineData(CherryPickTrigger.Continue)]
+    [InlineData(CherryPickTrigger.Abort)]
+    public void CherryPickTriggers_Of_SubMachine_Should_Be_Ignored_When_Not_Initialized(CherryPickTrigger trigger)
     {
         // Arrange
         var sm = new StateMachine();
         sm.Fire(StateTrigger.Start);
         sm.Fire(StateTrigger.ProvideRepoPath);
 
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            sm.Fire(trigger);
-        });
+        sm.Fire(trigger);
+
+        Assert.Equal(State.ShowingMenu, sm.CurrentState);
     }
 
     // [Fact]
@@ -467,12 +470,10 @@ public class StateMachineTests
 
         sm.Fire(StateTrigger.CherryPick);
 
-        sm.Fire(StateTrigger.CherryPickError);
-        sm.Fire(StateTrigger.CherryPickAbort);
-        sm.Fire(StateTrigger.CherryPickCompleted);
-        Assert.Equal(State.CherryPickCompleted, sm.CurrentState);
+        sm.Fire(CherryPickTrigger.Error);
+        sm.Fire(CherryPickTrigger.Abort);
+        sm.Fire(CherryPickTrigger.Complete);
 
-        sm.Fire(StateTrigger.ShowMenu);
         Assert.Equal(State.ShowingMenu, sm.CurrentState);
     }
 }

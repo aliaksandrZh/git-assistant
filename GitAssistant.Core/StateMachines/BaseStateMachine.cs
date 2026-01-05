@@ -34,7 +34,7 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
     //     if (CurrentSubMachine != null)
     //     {
     //         CurrentSubMachine.Deactivate();
-    //         CurrentSubMachine = null;
+    //         // CurrentSubMachine = null;
     //     }
 
     //     _sm.Deactivate();
@@ -67,8 +67,10 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
         if (CurrentSubMachine != null)
         {
             Console.WriteLine($"[{GetType().Name}] Busy: Ignoring trigger {trigger}");
+            // throw new InvalidOperationException();
             return;
         }
+        Console.WriteLine(Environment.StackTrace);
         _sm.Fire(trigger);
     }
     public void Fire(object dynamicTrigger)
@@ -93,17 +95,15 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
     protected StateMachine<TState, TTrigger>.StateConfiguration Configure(TState state)
         => _sm.Configure(state);
 
-    protected StateMachine<TState, TTrigger>.StateConfiguration ConfigureSubMachine<TSState, TTSTrigger>(
+    protected StateMachine<TState, TTrigger>.StateConfiguration ConfigureSubMachine(
         TState state,
-        BaseStateMachine<TSState, TTSTrigger> subStateMachine,
-        Action onSubMachineCompleted
-        )
-        where TSState : struct, Enum
-        where TTSTrigger : struct, Enum
+        ISubMachine subStateMachine,
+        Action onSubMachineCompleted)
     {
         return _sm.Configure(state)
             .OnEntry(() =>
             {
+                // subStateMachine.Activate();
                 CurrentSubMachine = subStateMachine;
                 subStateMachine.OnCompleted += onSubMachineCompleted;
             })
@@ -116,6 +116,34 @@ public abstract class BaseStateMachine<TState, TTrigger> : ISubMachine
                 }
 
                 subStateMachine.OnCompleted -= onSubMachineCompleted;
+                // subStateMachine.Deactivate();
+                CurrentSubMachine = null;
+            });
+    }
+
+    protected StateMachine<TState, TTrigger>.StateConfiguration ConfigureSubMachine(
+        TState state,
+        Func<ISubMachine> subMachineFactory,
+        Action onSubMachineCompleted)
+    {
+        return _sm.Configure(state)
+            .OnEntry(() =>
+            {
+                // subStateMachine.Activate();
+                var subStateMachine = subMachineFactory();
+                CurrentSubMachine = subStateMachine;
+                subStateMachine.OnCompleted += onSubMachineCompleted;
+            })
+            .OnExit(() =>
+            {
+                if (CurrentSubMachine is null)
+                {
+                    Console.WriteLine("CurrentSubMachine is already null!");
+                    return;
+                }
+
+                CurrentSubMachine.OnCompleted -= onSubMachineCompleted;
+                // subStateMachine.Deactivate();
                 CurrentSubMachine = null;
             });
     }

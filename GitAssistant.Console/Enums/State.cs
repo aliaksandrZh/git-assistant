@@ -14,8 +14,4 @@ public enum State
     None,
     CherryPicking,
     CherryPickCompleted,
-    CherryPickStarting,
-    CherryPickContinuing,
-    CherryPickErrorHandling,
-    CherryPickAborting
 }

@@ -2,6 +2,7 @@ using GitAssistant.Core.Interface;
 using GitAssistant.Console.StateMachines;
 using GitAssistant.Console.Enums;
 using GitAssistant.Core.Models;
+using GitAssistant.Core.Enums;
 namespace GitAssistant.Console.Menu;
 
 public class Menu(IGitEngine git, StateMachine _stateMachine)
@@ -11,150 +12,110 @@ public class Menu(IGitEngine git, StateMachine _stateMachine)
     {
         _stateMachine.Fire(StateTrigger.Start);
 
-        StateTrigger? trigger = StateTrigger.Idle;
+        object? trigger = StateTrigger.Idle;
 
-        while (_stateMachine.CurrentState != State.ExitConfirmed)
+        var currentState = (State)_stateMachine.CurrentState;
+
+        while (currentState != State.ExitConfirmed)
         {
-            // switch (_stateMachine.CurrentState)
-            // {
-            //     case State.AwaitingRepoPath:
-            //         trigger = await OnAwaitingRepoPathAsync();
-            //         break;
-
-            //     case State.ShowingMenu:
-            //         trigger = OnShowingMenu();
-            //         break;
-
-            //     case State.AwaitingSearchQuery:
-            //         trigger = OnAwaitingSearchQuery();
-            //         break;
-
-            //     case State.Searching:
-            //         trigger = await OnSearchingAsync();
-            //         break;
-
-            //     case State.SearchCompleted:
-            //         trigger = StateTrigger.ShowMenu;
-            //         break;
-
-            //     case State.ConfirmExit:
-            //         trigger = OnConfirmExit();
-            //         break;
-
-            //     case State.CherryPickStarting:
-            //         trigger = OnCherryPickStarted();
-            //         break;
-
-            //     case State.CherryPickErrorHandling:
-            //         trigger = OnCherryPickErrorHandling();
-            //         break;
-
-            //     case State.CherryPickContinuing:
-            //         trigger = OnCherryPickContinuing();
-            //         break;
-
-            //     case State.CherryPickAborting:
-            //         trigger = OnCherryPickAborting();
-            //         break;
-
-            //     case State.CherryPickCompleted:
-            //         trigger = StateTrigger.ShowMenu;
-            //         break;
-            // }
-
-            trigger = await HandleCurrentState();
-
-            if (trigger.HasValue && trigger != StateTrigger.Idle)
+            switch (_stateMachine.CurrentState)
             {
-                _stateMachine.Fire(trigger.Value);
+                case State.AwaitingRepoPath:
+                    trigger = await OnAwaitingRepoPathAsync();
+                    break;
+
+                case State.ShowingMenu:
+                    trigger = OnShowingMenu();
+                    break;
+
+                case State.AwaitingSearchQuery:
+                    trigger = OnAwaitingSearchQuery();
+                    break;
+
+                case State.Searching:
+                    trigger = await OnSearchingAsync();
+                    break;
+
+                case State.SearchCompleted:
+                    trigger = StateTrigger.ShowMenu;
+                    break;
+
+                case State.ConfirmExit:
+                    trigger = OnConfirmExit();
+                    break;
+
+                case State.CherryPicking:
+                    var internalState = (CherryPickState?)_stateMachine.CurrentStateSubState;
+                    switch (internalState)
+                    {
+                        case CherryPickState.Starting:
+                            trigger = OnCherryPickStarted();
+                            break;
+                        case CherryPickState.ErrorHandling:
+                            trigger = OnCherryPickErrorHandling();
+                            break;
+                        case CherryPickState.Continuing:
+                            trigger = OnCherryPickContinuing();
+                            break;
+                        case CherryPickState.Aborting:
+                            trigger = OnCherryPickAborting();
+                            break;
+                        case CherryPickState.Completing:
+                            trigger = StateTrigger.CherryPickCompleted;
+                            break;
+                    }
+                    break;
+
+                // case State.CherryPickStarting:
+                //     trigger = OnCherryPickStarted();
+                //     break;
+
+                // case State.CherryPickErrorHandling:
+                //     trigger = OnCherryPickErrorHandling();
+                //     break;
+
+                // case State.CherryPickContinuing:
+                //     trigger = OnCherryPickContinuing();
+                //     break;
+
+                // case State.CherryPickAborting:
+                //     trigger = OnCherryPickAborting();
+                //     break;
+
+                case State.CherryPickCompleted:
+                    trigger = StateTrigger.ShowMenu;
+                    break;
+            }
+
+            // trigger = await HandleCurrentState();
+
+            if (trigger != null)
+            {
+                _stateMachine.Fire(trigger);
             }
         }
     }
 
-    private async Task<StateTrigger?> HandleCurrentState()
+    private CherryPickTrigger OnCherryPickStarted()
     {
-        if (_stateMachine.IsInState(State.AwaitingRepoPath))
-        {
-            return await OnAwaitingRepoPathAsync();
-        }
-
-        if (_stateMachine.IsInState(State.ShowingMenu))
-        {
-            return OnShowingMenu();
-        }
-
-        if (_stateMachine.IsInState(State.AwaitingSearchQuery))
-        {
-            return OnAwaitingSearchQuery();
-        }
-
-        if (_stateMachine.IsInState(State.Searching))
-        {
-            return await OnSearchingAsync();
-        }
-
-        if (_stateMachine.IsInState(State.SearchCompleted))
-        {
-            return StateTrigger.ShowMenu;
-        }
-
-        if (_stateMachine.IsInState(State.ConfirmExit))
-        {
-            return OnConfirmExit();
-        }
-
-        if (_stateMachine.IsInState(State.CherryPicking))
-        {
-            if (_stateMachine.IsInState(State.CherryPickStarting))
-            {
-                return OnCherryPickStarted();
-            }
-
-            if (_stateMachine.IsInState(State.CherryPickErrorHandling))
-            {
-                return OnCherryPickErrorHandling();
-            }
-
-            if (_stateMachine.IsInState(State.CherryPickContinuing))
-            {
-                return OnCherryPickContinuing();
-            }
-
-            if (_stateMachine.IsInState(State.CherryPickAborting))
-            {
-                return OnCherryPickAborting();
-            }
-
-            if (_stateMachine.IsInState(State.CherryPickCompleted))
-            {
-                return StateTrigger.ShowMenu;
-            }
-        }
-
-        return null;
+        return CherryPickTrigger.Complete;
     }
 
-
-    private StateTrigger OnCherryPickStarted()
-    {
-        return StateTrigger.CherryPickCompleted;
-    }
-
-    private StateTrigger OnCherryPickErrorHandling()
+    private CherryPickTrigger OnCherryPickErrorHandling()
     {
         // return StateTrigger.CherryPickError;
-        return StateTrigger.ContinueCherryPick;
+        return CherryPickTrigger.Continue;
     }
 
-    private StateTrigger OnCherryPickContinuing()
+    private CherryPickTrigger OnCherryPickContinuing()
     {
         // return StateTrigger.CherryPickError;
-        return StateTrigger.CherryPickCompleted;
+        return CherryPickTrigger.Complete;
     }
 
-    private StateTrigger OnCherryPickAborting()
+    private CherryPickTrigger OnCherryPickAborting()
     {
-        return StateTrigger.CherryPickCompleted;
+        return CherryPickTrigger.Complete;
     }
 
     private StateTrigger OnConfirmExit()
